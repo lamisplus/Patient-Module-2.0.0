@@ -30,6 +30,8 @@ import "./patient.css";
 import { Modal } from "react-bootstrap";
 import { Label as LabelSui } from "semantic-ui-react";
 import { Icon } from "semantic-ui-react";
+import { calculate_age2 } from "../utils";
+
 
 library.add(faCheckSquare, faCoffee, faEdit, faTrash);
 
@@ -423,14 +425,16 @@ const RegisterPatient = (props) => {
   //Date of Birth and Age handle
   const handleDobChange = (e) => {
     if (e.target.value) {
-      const today = new Date();
-      const birthDate = new Date(e.target.value);
-      let age_now = today.getFullYear() - birthDate.getFullYear();
-      //   const m = today.getMonth() - birthDate.getMonth();
-      //   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      //     age_now--;
-      //   }
-      basicInfo.age = age_now;
+
+    let result =  calculate_age2(e.target.value);
+      // const today = new Date();
+      // const birthDate = new Date(e.target.value);
+      // let age_now = today.getFullYear() - birthDate.getFullYear();
+      // //   const m = today.getMonth() - birthDate.getMonth();
+      // //   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      // //     age_now--;
+      // //   }
+      basicInfo.age = result;
       //setBasicInfo({...basicInfo, age: age_now});
     } else {
       setBasicInfo({ ...basicInfo, age: "" });
@@ -439,6 +443,8 @@ const RegisterPatient = (props) => {
     if (basicInfo.age !== "" && basicInfo.age >= 60) {
       toggle();
     }
+    setErrors({...errors, age: ""})
+
   };
   const handleDateOfBirthChange = (e) => {
     if (e.target.value === "Actual") {
@@ -462,9 +468,11 @@ const RegisterPatient = (props) => {
       }
     }
     setBasicInfo({ ...basicInfo, age: ageNumber });
+    setErrors({...errors, age: ""})
   };
 
   const handleInputChangeBasic = (e) => {
+    setErrors({...errors, [e.target.name]: ""})
     setBasicInfo({ ...basicInfo, [e.target.name]: e.target.value });
 
     if (e.target.name === "firstName" && e.target.value !== "") {
@@ -611,6 +619,8 @@ const RegisterPatient = (props) => {
     temp.streetAddress = basicInfo.streetAddress ? "" : "Address is required.";
     //temp.phoneNumber = basicInfo.phoneNumber ? "" : "Phone Number  is required."
     temp.countryId = basicInfo.countryId ? "" : "Country is required.";
+    temp.age = basicInfo.age !== "" ?  "" : "Age is required.";
+
     temp.stateId = basicInfo.stateId ? "" : "State is required.";
     temp.district = basicInfo.district ? "" : "Province/LGA is required.";
     temp.employmentStatusId = basicInfo.employmentStatusId
@@ -1088,6 +1098,7 @@ const RegisterPatient = (props) => {
                                   border: "1px solid #014D88",
                                   borderRadius: "0.2rem",
                                 }}
+
                               />{" "}
                               Actual
                             </label>
@@ -1119,20 +1130,22 @@ const RegisterPatient = (props) => {
                             name="dob"
                             min="1940-01-01"
                             id="dob"
-                            max={basicInfo.dateOfRegistration}
+                            // max={basicInfo.dateOfRegistration}
                             value={basicInfo.dob}
                             onChange={handleDobChange}
                             style={{
                               border: "1px solid #014D88",
                               borderRadius: "0.2rem",
                             }}
+                            max={moment(new Date()).format("YYYY-MM-DD")}
+
                           />
                         </FormGroup>
                       </div>
 
                       <div className="form-group mb-3 col-md-3">
                         <FormGroup>
-                          <Label>Age</Label>
+                          <Label>Age  <span style={{ color: "red" }}> *</span></Label>
                           <input
                             type="text"
                             name="age"
@@ -1148,6 +1161,13 @@ const RegisterPatient = (props) => {
                             }}
                           />
                         </FormGroup>
+                        {errors.age !== "" ? (
+                            <span className={classes.error}>
+                              {errors.age}
+                            </span>
+                          ) : (
+                            ""
+                          )}
                         {basicInfo.age !== "" && basicInfo.age >= 80 ? (
                           <span className={classes.error}>
                             Are you sure of the age

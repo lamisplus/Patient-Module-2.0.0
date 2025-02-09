@@ -34,6 +34,8 @@ import _ from "lodash";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
 import { FaUserPlus } from "react-icons/fa";
+import { calculate_age2 } from "../utils";
+
 
 library.add(faCheckSquare, faCoffee, faEdit, faTrash);
 
@@ -295,7 +297,7 @@ const ViewPatient = (props) => {
       setValue("sex", sex);
       setValue("highestQualification", education ? education.id : "");
       setValue("dob", format(new Date(patient.dateOfBirth), "yyyy-MM-dd"));
-      setValue("age", calculate_age(patient.dateOfBirth));
+      setValue("age", calculate_age2(patient.dateOfBirth));
       if (country) {
         setValue("countryId", country.countryId);
         const stateOptions = country.countryId
@@ -673,14 +675,8 @@ const ViewPatient = (props) => {
 
   const handleDobChange = (e) => {
     if (e.target.value) {
-      const today = new Date();
-      const birthDate = new Date(e.target.value);
-      let age_now = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age_now--;
-      }
-      setValue("age", age_now);
+    let result =  calculate_age2(e.target.value);
+      setValue("age", result);
     } else {
       setValue("age", null);
     }
@@ -1182,7 +1178,7 @@ const ViewPatient = (props) => {
 
                       <div className="form-group mb-3 col-md-4">
                         <FormGroup>
-                          <Label>Age</Label>
+                          <Label>Age  <span style={{ color: "red" }}> *</span></Label>
                           <input
                             className="form-control"
                             type="number"
